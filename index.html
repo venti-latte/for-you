@@ -1,148 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>i still love you.</title>
+<script>
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[];',./{}:";
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  let interval = null;
+  const heading = document.querySelector("h1");
 
-  <style>
-    body {
-      display: grid;
-      place-items: center;
-      height: 100vh;
-      background-color: black;
-      margin: 0;
-      overflow: hidden;
-    }
+  /* ————————— SOUND SYSTEM ————————— */
+  const soundFiles = [
+    "https://raw.githubusercontent.com/USERNAME/REPO/main/scramble1.mp3?raw=1",
+    "https://raw.githubusercontent.com/USERNAME/REPO/main/scramble2.mp3?raw=1",
+    "https://raw.githubusercontent.com/USERNAME/REPO/main/scramble3.mp3?raw=1"
+  ];
 
-    h1 {
-      font-family: "Space Mono", monospace;
-      font-size: clamp(1rem, 5vw, 4rem);
-      color: white;
-      padding: 0rem clamp(1rem, 2vw, 3rem);
-      border-radius: clamp(0.4rem, 0.75vw, 1rem);
-      cursor: default;
-      display: inline-block;
-      white-space: nowrap;
-      transition: color 0.35s ease, background-color 0.35s ease;
-    }
+  const sounds = soundFiles.map(url => {
+    const audio = new Audio(url);
+    audio.preload = "auto";
+    audio.volume = 0.25;
+    return audio;
+  });
 
-    h1.hovered {
-      background-color: white;
-      color: black;
-    }
+  let lastSoundTime = 0;
+  const SOUND_COOLDOWN = 20;
 
-    .scrambling {
-      transition: opacity 0.2s ease;
-      opacity: 0.85;
-    }
-  </style>
-</head>
+  function playScrambleSound() {
+    const now = performance.now();
+    if (now - lastSoundTime < SOUND_COOLDOWN) return;
+    lastSoundTime = now;
 
-<body>
+    const base = sounds[Math.floor(Math.random() * sounds.length)];
+    const clone = base.cloneNode();     // ← IMPORTANT
+    clone.volume = base.volume;
+    clone.play();
+  }
 
-  <h1 data-value="aWxsIGJlIGhlcmUgd2FpdGluZyBmb3IgeW91LCBkYW5pLiA=">
-    If you're reading this, decode this with Base 64.
-  </h1>
+  /* ————————— WIDTH FREEZE ————————— */
+  function freezeWidth(el) {
+    const rect = el.getBoundingClientRect();
+    el.style.width = rect.width + "px";
+  }
 
-  <script>
-    const letters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[];',./{}:";
+  function unfreezeWidth(el) {
+    el.style.width = "";
+  }
 
-    let interval = null;
-    const heading = document.querySelector("h1");
+  /* ————————— FAST SCRAMBLE ————————— */
+  function scrambleText(element, targetText) {
+    let iteration = 0;
+    const totalDuration = 2000;
+    const frames = totalDuration / 20;
+    const step = targetText.length / frames;
 
-    /* ————————— SOUND SYSTEM ————————— */
-    const soundFiles = [
-      "https://raw.githubusercontent.com/venti-latte/for-you/refs/heads/main/Futuristic%20Keypress.mp3?raw=1"
-    ];
+    clearInterval(interval);
+    freezeWidth(element);
+    element.classList.add("scrambling");
 
-    const sounds = soundFiles.map(url => {
-      const audio = new Audio(url);
-      audio.preload = "auto";
-      audio.volume = 0.25;
-      audio.addEventListener("canplaythrough", () => {
-        console.log("Loaded:", url);
-      });
-      return audio;
-    });
+    interval = setInterval(() => {
+      element.innerText = element.innerText
+        .split("")
+        .map((letter, index) =>
+          index < iteration
+            ? targetText[index]
+            : letters[Math.floor(Math.random() * letters.length)]
+        )
+        .join("");
 
-    let lastSoundTime = 0;
-    const SOUND_COOLDOWN = 20;
+      playScrambleSound();
 
-    function playScrambleSound() {
-      const now = performance.now();
-      if (now - lastSoundTime < SOUND_COOLDOWN) return;
-      lastSoundTime = now;
+      if (iteration >= targetText.length) {
+        clearInterval(interval);
+        element.classList.remove("scrambling");
+        setTimeout(() => unfreezeWidth(element), 150);
+      }
 
-      const sound = sounds[Math.floor(Math.random() * sounds.length)];
-      sound.currentTime = 0;
+      iteration += step;
+    }, 30);
+  }
 
-      sound.play().catch(err => {
-        console.warn("Audio blocked, retrying after gesture…", err);
-      });
-    }
+  /* ————————— EVENTS ————————— */
+  heading.onmouseover = () => {
+    heading.classList.add("hovered");
+    scrambleText(heading, heading.dataset.value);
+  };
 
-    /* ————————— WIDTH FREEZE ————————— */
-    function freezeWidth(el) {
-      const rect = el.getBoundingClientRect();
-      el.style.width = rect.width + "px";
-    }
-
-    function unfreezeWidth(el) {
-      el.style.width = "";
-    }
-
-    /* ————————— FAST SCRAMBLE ————————— */
-    function scrambleText(element, targetText) {
-      let iteration = 0;
-      const totalDuration = 2000;
-      const frames = totalDuration / 20;
-      const step = targetText.length / frames;
-
-      clearInterval(interval);
-      freezeWidth(element);
-      element.classList.add("scrambling");
-
-      interval = setInterval(() => {
-        element.innerText = element.innerText
-          .split("")
-          .map((letter, index) =>
-            index < iteration
-              ? targetText[index]
-              : letters[Math.floor(Math.random() * letters.length)]
-          )
-          .join("");
-
-        playScrambleSound();
-
-        if (iteration >= targetText.length) {
-          clearInterval(interval);
-          element.classList.remove("scrambling");
-          setTimeout(() => unfreezeWidth(element), 150);
-        }
-
-        iteration += step;
-      }, 30);
-    }
-
-    /* ————————— EVENTS ————————— */
-    heading.onmouseover = () => {
-      heading.classList.add("hovered");
-      scrambleText(heading, heading.dataset.value);
-    };
-
-    heading.onmouseout = () => {
-      heading.classList.remove("hovered");
-      scrambleText(
-        heading,
-        "If you're reading this, decode this with Base 64."
-      );
-    };
-  </script>
-
-</body>
-</html>
-
+  heading.onmouseout = () => {
+    heading.classList.remove("hovered");
+    scrambleText(
+      heading,
+      "If you're reading this, decode this with Base 64."
+    );
+  };
+</script>
