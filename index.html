@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Base64 Scramble Smooth</title>
+  <title>i still love you.</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
@@ -19,11 +19,11 @@
 
     h1 {
       font-family: "Space Mono", monospace;
-      font-size: clamp(1rem, 5vw, 4rem);
+      font-size: clamp(0.5rem, 2.5vw, 2rem);
       color: white;
       padding: 0rem clamp(1rem, 2vw, 3rem);
       border-radius: clamp(0.4rem, 0.75vw, 1rem);
-      cursor: default;
+      cursor: pointer;
       display: inline-block;
       white-space: nowrap;
       transition: color 0.35s ease, background-color 0.35s ease;
@@ -44,14 +44,17 @@
 <body>
 
   <h1 data-value="aWxsIGJlIGhlcmUgd2FpdGluZyBmb3IgeW91LCBkYW5pLiA=">
-    If you're reading this, decode this with Base 64.
+    HEY, CLICK ON ME AND THEN DECODE ME USING BASE64.
   </h1>
 
 <script>
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[];',./{}:";
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[];',/{}:";
+  const initialText = "HEY, CLICK ON ME AND THEN DECODE ME USING BASE64.";
+  const targetText = document.querySelector("h1").dataset.value;
 
   let interval = null;
   const heading = document.querySelector("h1");
+  let isDecoded = false;
 
   /* ————————— SOUND SYSTEM ————————— */
   const soundFiles = [
@@ -74,9 +77,9 @@
     lastSoundTime = now;
 
     const base = sounds[Math.floor(Math.random() * sounds.length)];
-    const clone = base.cloneNode();     // ← IMPORTANT
+    const clone = base.cloneNode();
     clone.volume = base.volume;
-    clone.play();
+    clone.play().catch(e => {});
   }
 
   /* ————————— WIDTH FREEZE ————————— */
@@ -90,29 +93,29 @@
   }
 
   /* ————————— FAST SCRAMBLE ————————— */
-  function scrambleText(element, targetText) {
+  function scrambleText(element, textToDisplay) {
     let iteration = 0;
     const totalDuration = 2000;
-    const frames = totalDuration / 20;
-    const step = targetText.length / frames;
+    const frames = totalDuration / 30;
+    const step = textToDisplay.length / frames;
 
     clearInterval(interval);
     freezeWidth(element);
     element.classList.add("scrambling");
 
     interval = setInterval(() => {
+      playScrambleSound();
+
       element.innerText = element.innerText
         .split("")
         .map((letter, index) =>
           index < iteration
-            ? targetText[index]
+            ? textToDisplay[index]
             : letters[Math.floor(Math.random() * letters.length)]
         )
         .join("");
 
-      playScrambleSound();
-
-      if (iteration >= targetText.length) {
+      if (iteration >= textToDisplay.length) {
         clearInterval(interval);
         element.classList.remove("scrambling");
         setTimeout(() => unfreezeWidth(element), 150);
@@ -122,18 +125,18 @@
     }, 30);
   }
 
-  /* ————————— EVENTS ————————— */
-  heading.onmouseover = () => {
-    heading.classList.add("hovered");
-    scrambleText(heading, heading.dataset.value);
-  };
-
-  heading.onmouseout = () => {
-    heading.classList.remove("hovered");
-    scrambleText(
-      heading,
-      "If you're reading this, decode this with Base 64."
-    );
+  /* ————————— EVENTS (CLICK) ————————— */
+  heading.onclick = () => {
+    if (isDecoded) {
+      heading.classList.remove("hovered");
+      scrambleText(heading, initialText);
+    } else {
+      heading.classList.add("hovered");
+      scrambleText(heading, targetText);
+    }
+    isDecoded = !isDecoded;
   };
 </script>
 
+</body>
+</html>
