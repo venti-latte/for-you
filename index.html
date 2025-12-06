@@ -1,3 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base64 Scramble Smooth</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      background-color: black;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-family: "Space Mono", monospace;
+      font-size: clamp(1rem, 5vw, 4rem);
+      color: white;
+      padding: 0rem clamp(1rem, 2vw, 3rem);
+      border-radius: clamp(0.4rem, 0.75vw, 1rem);
+      cursor: default;
+      display: inline-block;
+      white-space: nowrap;
+      transition: color 0.35s ease, background-color 0.35s ease;
+    }
+
+    h1.hovered {
+      background-color: white;
+      color: black;
+    }
+
+    .scrambling {
+      transition: opacity 0.2s ease;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 data-value="aWxsIGJlIGhlcmUgd2FpdGluZyBmb3IgeW91LCBkYW5pLiA=">
+    If you're reading this, decode this with Base 64.
+  </h1>
+
 <script>
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[];',./{}:";
 
